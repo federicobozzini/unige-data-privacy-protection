@@ -2,6 +2,16 @@ function sort(arr) {
     return arr.sort((a, b) => b - a);
 }
 
+function I(d) {
+    return d.reduce((acc, v) => acc + (d[0] - v), 0);
+}
+function join(sol1, sol2) {
+    return {
+        d: sol1.d.concat(sol2.d),
+        l: sol1.l + sol2.l
+    };
+}
+
 function getNaiveKAnonymized(d, k) {
     const n = d.length;
     function clone(arr) {
@@ -61,6 +71,39 @@ function toAnonymized(d) {
     };
 }
 
+function getDPKAnonymized(d, k, depth = 0) {
+    function range(start, end) {
+        return Array.apply(0, Array(end - start))
+            .map((e, i) => i + start);
+    }
+    function minByL(sols) {
+        return sols.reduce((acc, v) => {
+            if (!acc || acc.l > v.l)
+                return v;
+            return acc;
+        }, null)
+    }
+    function split(a, j) {
+        const a1 = a.slice(0, j);
+        const a2 = a.slice(j);
+        return [a1, a2];
+    }
+
+    const i = d.length;
+    if (i < 2 * k + 1) {
+        return toAnonymized(d);
+    }
+    const minT = Math.min(k, i - 2 * k + 1);
+    const maxT = i - k;
+    const ts = range(minT, maxT);
+    const sols = ts.map(t => {
+        const [d1, d2] = split(d, t);
+        return join(getDPKAnonymized(d1, k, depth + 1), toAnonymized(d2));
+    });
+    const minSol = minByL(sols);
+    return minSol;
+}
+
 function timed(fn) {
     const start = window.performance.now();
     const res = fn();
@@ -85,7 +128,12 @@ const k = 2;
 inputs.forEach(d => {
     sort(d);
     const { res: naiveSol, time: naiveTime } = timed(() => getNaiveKAnonymized(d, k));
+    const { res: dpSol, time: dpTime } = timed(() => getDPKAnonymized(d, k));
+    if (naiveSol.l !== dpSol.l)
+        console.log('warning!!');
     console.log(d);
     console.log(naiveSol);
     console.log(`${naiveTime} ms.`);
+    console.log(dpSol);
+    console.log(`${dpTime} ms.`);
 });
