@@ -5,12 +5,66 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="stylesheet" href="main.css">
     <title>Graph Anonymization</title>
 
 </head>
 
 <body>
+    <form>
+        <label>Nodes<input type="text" id="nodes" value="15" /></label>
+        <label>Edges<input type="text" id="edges" value="15" /></label>
+        <label>K<input type="text" id="kIn" value="2" /></label>
+        <label>Use naive<input type="checkbox" id="naiveFlag" /></label>
+        <button type='button' id="anonymizeBtn">Anonymize</button>
+    </form>
+    <div>
+        <div class="results" id="naive">
+            <h3>Naive</h3>
+            <div>Status:
+                <span class="status">WAITING</span>
+            </div>
+            <div>L:
+                <span class="l"></span>
+            </div>
+            <div>Time:
+                <span class="time"></span>
+            </div>
+            <div>Correct:
+                <span class="correct"></span>
+            </div>
+        </div>
+        <div class="results" id="dp">
+            <h3>Dynamic Programming</h3>
+            <div>Status:
+                <span class="status">WAITING</span>
+            </div>
+            <div>L:
+                <span class="l"></span>
+            </div>
+            <div>Time:
+                <span class="time"></span>
+            </div>
+            <div>Correct:
+                <span class="correct"></span>
+            </div>
+        </div>
+        <div class="results" id="greedy">
+            <h3>Greedy</h3>
+            <div>Status:
+                <span class="status">WAITING</span>
+            </div>
+            <div>L:
+                <span class="l"></span>
+            </div>
+            <div>Time:
+                <span class="time"></span>
+            </div>
+            <div>Correct:
+                <span class="correct"></span>
+            </div>
+        </div>
+    </div>
     <script src="main.js"></script>
 </body>
 

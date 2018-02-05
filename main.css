@@ -1,0 +1,8 @@
+.results {
+    display: inline-block;
+    margin-right: 80px;
+}
+
+label, button {
+    display: block;
+}
