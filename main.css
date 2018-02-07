@@ -6,3 +6,8 @@
 label, button {
     display: block;
 }
+
+form label span {
+    display: inline-block;
+    width: 50px;
+}
