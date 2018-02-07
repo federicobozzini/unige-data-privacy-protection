@@ -5,21 +5,29 @@ function sort(arr) {
 function I(d) {
     return d.reduce((acc, v) => acc + (d[0] - v), 0);
 }
+
+function sum(a) {
+    return a.reduce((acc, v) => acc + v, 0);
+}
+
 function join(sol1, sol2) {
     return {
         d: sol1.d.concat(sol2.d),
         l: sol1.l + sol2.l
     };
 }
+
 function range(start, end) {
     return Array.apply(0, Array(end - start))
         .map((e, i) => i + start);
 }
+
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min;
 }
+
 function toAnonymized(d) {
     return {
         d: (new Array(d.length)).fill(d[0]),
@@ -38,13 +46,11 @@ function isKAnonymous(d, k) {
     const degrees = Object.keys(dCounters);
     return degrees.every(degree => dCounters[degree] >= k);
 }
+
 function getNaiveKAnonymized(d, k) {
     const n = d.length;
     function clone(arr) {
         return arr.slice();
-    }
-    function hasUniqVal(d, i) {
-        return !d.some((v, j) => j !== i && v === d[i]);
     }
     function getUniqIndexes(d) {
         const n = d.length;
@@ -130,7 +136,7 @@ function getGreedyKAnonymized(d, k) {
             cnew
         };
     }
-    if (d.length <= 2*k) {
+    if (d.length <= 2 * k) {
         return getDPKAnonymized(d, k);
     }
     const dTmp = d.slice(0, k);
@@ -148,19 +154,19 @@ function getGreedyKAnonymized(d, k) {
         }
         i++;
     }
-    // return dAnon;
     const dLast = d.slice(d.length - k);
     return join(dAnon, toAnonymized(dLast, k));
 }
 
 function timed(fn) {
     const start = window.performance.now();
-    const res = fn();
+    const sol = fn();
     const end = window.performance.now();
     const time = end - start;
     return {
-        res,
-        time
+        sol,
+        time,
+        fnName: fn.name
     };
 }
 
@@ -190,56 +196,133 @@ function isCorrect(d, k, sol) {
     return sol.d.length === d.length && isKAnonymous(sol.d, k);
 }
 
-function anonymize() {
+function isRealizable(d) {
+    const n = d.length;
+    return range(0, n - 1).every(k => {
+        const l = k + 1;
+        const s1 = sum(d.slice(0, k));
+        const s2 = l * (l - 1) + range(l + 1, n).reduce((acc, v) => acc + Math.min(l, v), 0);
+        return s1 <= s2;
+    }) && sum(d) % 2 === 0;
+}
+
+function costructGraph(d) {
+    function getRandom() { }
+    if (!isRealizable(d))
+        return;
+    const graph = d.map(i => ({ id: i, links: [] }));
+    while (d.some(v => v > 0)) {
+        if (d.some(v => v < 0))
+            return;
+        const i = getRandomInt(0, d.length);
+        const v = d[i];
+        let j=0; visiteLinks = 0;
+        d[i] = 0;
+        while (visiteLinks < v) {
+            if(j===i) {
+                j++;
+                continue;
+            }
+            graph[i].links.push(graph[j]);
+            graph[j].links.push(graph[i]);
+            d[j]--;
+            j++;
+            visiteLinks++;
+        }
+        sort(d);
+    }
+    return graph;
+}
+
+function showResults(d, results) {
     function setLabel(domEl, labelName, value) {
         domEl.getElementsByClassName(labelName)[0].innerHTML = value;
     }
+    let resultBoxes = [...document.getElementsByClassName("results")];
+    if (!naiveFlag.checked) {
+        resultBoxes = resultBoxes.slice(1);
+    }
+    dIn.innerHTML = 'd = ' + d;
+    results.forEach((res, i) => {
+        const b = resultBoxes[i];
+        setLabel(b, 'dOut', res.sol.d);
+        setLabel(b, 'l', res.sol.l);
+        setLabel(b, 'time', res.time.toFixed(2) + ' ms');
+        setLabel(b, 'correct', isCorrect(d, k, res.sol));
+        setLabel(b, 'realizable', isRealizable(res.sol.d));
+        console.log(costructGraph(res.sol.d));
+        setLabel(b, 'graphBuilt', !!costructGraph(res.sol.d));
+    });
+}
+
+function anonymize() {
     const n = nodes.value;
     const e = edges.value;
     const k = kIn.value;
     const graph = generateGraph(n, e);
     const d = graphToDegrees(graph);
-    console.log(d);
-    const resultBoxes = [...document.getElementsByClassName("results")];
-    const fns = [getNaiveKAnonymized, getDPKAnonymized, getGreedyKAnonymized];
-    fns.forEach((fn, i) => {
-        if (!naiveFlag.checked && i===0)
-            return;
-        const b = resultBoxes[i];
-        setLabel(b, 'status', 'PROCESSING');
-        const { res: sol, time: time } = timed(() => fn(d, k));
-        setLabel(b, 'l', sol.l);
-        setLabel(b, 'time', time.toFixed(2) + ' ms');
-        setLabel(b, 'correct', isCorrect(d, k, sol));
-        setLabel(b, 'status', 'WAITING');
-        console.log(fn.name);
-        console.log(sol.d);
-    });
+    let fns = [getNaiveKAnonymized, getDPKAnonymized, getGreedyKAnonymized];
+    if (!naiveFlag.checked) {
+        fns = fns.slice(1);
+    }
+    const results = fns.map((fn, i) => {
+        return timed(() => fn(d, k));
+    })
+    return showResults(d, results);
 }
 
+function find() {
+    const n = nodes.value;
+    const e = edges.value;
+    const k = kIn.value;
+    let dpRes, gRes;
+    let found = false;
+    let trials = 500;
+    while (!found && trials !== 0) {
+        let graph = generateGraph(n, e);
+        d = graphToDegrees(graph);
+        dpRes = timed(() => getDPKAnonymized(d, k));
+        gRes = timed(() => getGreedyKAnonymized(d, k));
+        if (dpRes.sol.l !== gRes.sol.l)
+            found = true;
+        trials--;
+    }
+    if (found)
+        showResults(d, [dpRes, gRes]);
+    else
+        dIn.innerHTML = 'd not found';
+}
+
+
+anonymizeBtn.addEventListener('click', anonymize);
+findBtn.addEventListener('click', find);
+
+
+
 const inputs = [
-    [1, 2, 5, 2, 2, 1, 1],
-    [4, 3, 2, 2, 2, 1],
-    [1, 2, 5, 2, 2, 1, 1, 4, 4, 3, 2, 1, 7, 5, 8],
-    [3, 2, 2, 1],
-    [5, 5, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 2, 2, 2, 1, 1, 0, 0, 0],
-    [5, 5, 4, 4, 4, 2, 2, 2, 1, 1],
-    [2, 2, 2, 1, 1],
-    [3, 2, 2, 2, 1, 0],
-    [3, 3, 2, 2],
-    [1, 2, 5, 2, 2, 2],
-    [3, 3, 2, 2, 2],
-    [2, 1, 1, 1],
-    [5, 3, 2, 2], 
-    [4, 3, 2, 1, 1, 1]
+    // [1, 2, 5, 2, 2, 1, 1],
+    // [4, 3, 2, 2, 2, 1],
+    // [1, 2, 5, 2, 2, 1, 1, 4, 4, 3, 2, 1, 7, 5, 8],
+    // [3, 2, 2, 1],
+    // [5, 5, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 2, 2, 2, 1, 1, 0, 0, 0],
+    // [5, 5, 4, 4, 4, 2, 2, 2, 1, 1],
+    // [2, 2, 2, 1, 1],
+    // [3, 2, 2, 2, 1, 0],
+    // [3, 3, 2, 2],
+    // [1, 2, 5, 2, 2, 2],
+    // [3, 3, 2, 2, 2],
+    // [2, 1, 1, 1],
+    // [5, 3, 2, 2],
+    // [4, 3, 2, 1, 1, 1],
+    [4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1]
 ];
 
 const k = 2;
 inputs.forEach(d => {
     sort(d);
-    const { res: naiveSol, time: naiveTime } = timed(() => getNaiveKAnonymized(d, k));
-    const { res: dpSol, time: dpTime } = timed(() => getDPKAnonymized(d, k));
-    const { res: gSol, time: gTime } = timed(() => getGreedyKAnonymized(d, k));
+    const { sol: naiveSol, time: naiveTime } = timed(() => getNaiveKAnonymized(d, k));
+    const { sol: dpSol, time: dpTime } = timed(() => getDPKAnonymized(d, k));
+    const { sol: gSol, time: gTime } = timed(() => getGreedyKAnonymized(d, k));
     if (dpSol.l !== gSol.l) {
         console.log(d);
         console.log(dpSol);
@@ -249,5 +332,3 @@ inputs.forEach(d => {
     // console.log(`${dpTime} ms.`);
     // console.log(`${gTime} ms.`);
 });
-
-anonymizeBtn.addEventListener('click', anonymize);

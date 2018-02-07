@@ -3,11 +3,16 @@
     margin-right: 80px;
 }
 
-label, button {
+label {
     display: block;
 }
 
 form label span {
     display: inline-block;
     width: 50px;
+}
+
+#dIn {
+    display: block;
+    min-height: 20px;
 }
