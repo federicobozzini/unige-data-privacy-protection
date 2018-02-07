@@ -25,16 +25,22 @@
                 <span>K</span>
                 <input type="text" id="kIn" value="2" />
             </label>
-            <label>Use naive
+            <label>
+                <span>d</span>
+                <input id="dIn" type="text" />
+                <span id="dStatus"></span>
+            </label>
+            <label>
+                <span>Use naive</span>
                 <input type="checkbox" id="naiveFlag" />
             </label>
         </div>
         <div>
-            <button type='button' id="anonymizeBtn">Anonymize 1</button>
+            <button type='button' id="generateBtn">Generate</button>
+            <button type='button' id="anonymizeBtn">Anonymize</button>
             <button type='button' id="findBtn">Find Difference</button>
         </div>
     </form>
-    <div id="dIn"></div>
     <div>
         <div class="results" id="naive">
             <h3>Naive</h3>
@@ -47,8 +53,8 @@
             <div>Time:
                 <span class="time"></span>
             </div>
-            <div>Correct:
-                <span class="correct"></span>
+            <div>K-anonymous:
+                <span class="kanonymous"></span>
             </div>
             <div>Realizable:
                 <span class="realizable"></span>
@@ -68,8 +74,8 @@
             <div>Time:
                 <span class="time"></span>
             </div>
-            <div>Correct:
-                <span class="correct"></span>
+            <div>K-anonymous:
+                <span class="kanonymous"></span>
             </div>
             <div>Realizable:
                 <span class="realizable"></span>
@@ -89,8 +95,8 @@
             <div>Time:
                 <span class="time"></span>
             </div>
-            <div>Correct:
-                <span class="correct"></span>
+            <div>K-anonymous:
+                <span class="kanonymous"></span>
             </div>
             <div>Realizable:
                 <span class="realizable"></span>

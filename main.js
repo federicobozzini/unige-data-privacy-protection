@@ -192,10 +192,6 @@ function graphToDegrees(graph) {
     return sort(graph.map(n => n.links.length));
 }
 
-function isCorrect(d, k, sol) {
-    return sol.d.length === d.length && isKAnonymous(sol.d, k);
-}
-
 function isRealizable(d) {
     const n = d.length;
     return range(0, n - 1).every(k => {
@@ -242,13 +238,12 @@ function showResults(d, results) {
     if (!naiveFlag.checked) {
         resultBoxes = resultBoxes.slice(1);
     }
-    dIn.innerHTML = 'd = ' + d;
     results.forEach((res, i) => {
         const b = resultBoxes[i];
         setLabel(b, 'dOut', res.sol.d);
         setLabel(b, 'l', res.sol.l);
         setLabel(b, 'time', res.time.toFixed(2) + ' ms');
-        setLabel(b, 'correct', isCorrect(d, k, res.sol));
+        setLabel(b, 'kanonymous', isKAnonymous(res.sol.d, k));
         setLabel(b, 'realizable', isRealizable(res.sol.d));
         console.log(costructGraph(res.sol.d));
         setLabel(b, 'graphBuilt', !!costructGraph(res.sol.d));
@@ -256,11 +251,9 @@ function showResults(d, results) {
 }
 
 function anonymize() {
-    const n = nodes.value;
-    const e = edges.value;
-    const k = kIn.value;
-    const graph = generateGraph(n, e);
-    const d = graphToDegrees(graph);
+    if (!dIn.value)
+        generate();
+    const d = parseDegreeArray();
     let fns = [getNaiveKAnonymized, getDPKAnonymized, getGreedyKAnonymized];
     if (!naiveFlag.checked) {
         fns = fns.slice(1);
@@ -271,13 +264,23 @@ function anonymize() {
     return showResults(d, results);
 }
 
+function generate() {
+    const n = nodes.value;
+    const e = edges.value;
+    const k = kIn.value;
+    const graph = generateGraph(n, e);
+    const d = graphToDegrees(graph);
+    console.log(d);
+    dIn.value = d;
+}
+
 function find() {
     const n = nodes.value;
     const e = edges.value;
     const k = kIn.value;
     let dpRes, gRes;
     let found = false;
-    let trials = 500;
+    let trials = 1000;
     while (!found && trials !== 0) {
         let graph = generateGraph(n, e);
         d = graphToDegrees(graph);
@@ -287,15 +290,25 @@ function find() {
             found = true;
         trials--;
     }
-    if (found)
+    if (found) {
+        dIn.value = d;
         showResults(d, [dpRes, gRes]);
-    else
-        dIn.innerHTML = 'd not found';
+        dStatus.innerHTML = '';
+    }
+    else {
+        dIn.value = '';
+        dStatus.innerHTML = 'd not found';
+    }
+}
+
+function parseDegreeArray() {
+    return dIn.value.split(',');
 }
 
 
 anonymizeBtn.addEventListener('click', anonymize);
 findBtn.addEventListener('click', find);
+generateBtn.addEventListener('click', generate);
 
 
 
