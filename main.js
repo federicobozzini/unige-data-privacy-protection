@@ -212,10 +212,10 @@ function costructGraph(d) {
             return;
         const i = getRandomInt(0, d.length);
         const v = d[i];
-        let j=0; visiteLinks = 0;
+        let j = 0; visiteLinks = 0;
         d[i] = 0;
         while (visiteLinks < v) {
-            if(j===i) {
+            if (j === i) {
                 j++;
                 continue;
             }
@@ -234,6 +234,7 @@ function showResults(d, results) {
     function setLabel(domEl, labelName, value) {
         domEl.getElementsByClassName(labelName)[0].innerHTML = value;
     }
+    const k = kIn.value;
     let resultBoxes = [...document.getElementsByClassName("results")];
     if (!naiveFlag.checked) {
         resultBoxes = resultBoxes.slice(1);
@@ -253,6 +254,7 @@ function showResults(d, results) {
 function anonymize() {
     if (!dIn.value)
         generate();
+    const k = kIn.value;
     const d = parseDegreeArray();
     let fns = [getNaiveKAnonymized, getDPKAnonymized, getGreedyKAnonymized];
     if (!naiveFlag.checked) {
