@@ -1,6 +1,12 @@
 .results {
     display: inline-block;
     margin-right: 80px;
+    max-width: 30%;
+    vertical-align: top;
+}
+
+.results > div > span {
+    word-break: break-all;
 }
 
 label {
