@@ -1,0 +1,13 @@
+version: '2'
+services:
+  dpp:
+    image: python:3.3-alpine
+    container_name: dpp
+    ports:
+      - "8110:8080"
+      - "2024:22"
+    volumes:
+      - .:/var/www
+    restart: always
+    working_dir: /var/www
+    entrypoint: python -m http.server 8080
