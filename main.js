@@ -309,39 +309,3 @@ function parseDegreeArray() {
 anonymizeBtn.addEventListener('click', anonymize);
 findBtn.addEventListener('click', find);
 generateBtn.addEventListener('click', generate);
-
-
-
-const inputs = [
-    // [1, 2, 5, 2, 2, 1, 1],
-    // [4, 3, 2, 2, 2, 1],
-    // [1, 2, 5, 2, 2, 1, 1, 4, 4, 3, 2, 1, 7, 5, 8],
-    // [3, 2, 2, 1],
-    // [5, 5, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 2, 2, 2, 1, 1, 0, 0, 0],
-    // [5, 5, 4, 4, 4, 2, 2, 2, 1, 1],
-    // [2, 2, 2, 1, 1],
-    // [3, 2, 2, 2, 1, 0],
-    // [3, 3, 2, 2],
-    // [1, 2, 5, 2, 2, 2],
-    // [3, 3, 2, 2, 2],
-    // [2, 1, 1, 1],
-    // [5, 3, 2, 2],
-    // [4, 3, 2, 1, 1, 1],
-    [4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1]
-];
-
-const k = 2;
-inputs.forEach(d => {
-    sort(d);
-    const { sol: naiveSol, time: naiveTime } = timed(() => getNaiveKAnonymized(d, k));
-    const { sol: dpSol, time: dpTime } = timed(() => getDPKAnonymized(d, k));
-    const { sol: gSol, time: gTime } = timed(() => getGreedyKAnonymized(d, k));
-    if (dpSol.l !== gSol.l) {
-        console.log(d);
-        console.log(dpSol);
-        console.log(gSol);
-    }
-    // console.log(`${naiveTime} ms.`);
-    // console.log(`${dpTime} ms.`);
-    // console.log(`${gTime} ms.`);
-});
